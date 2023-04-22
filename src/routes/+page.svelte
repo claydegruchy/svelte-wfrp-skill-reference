@@ -49,7 +49,7 @@
 	<!-- <div use:clickOutside on:click_outside={e=>console.log("clicked outside!")}></div> -->
 
 	{#each Object.entries(skills) as [key, { title, items }]}
-		<div>
+		<div class={key}>
 			<h2>{title}</h2>
 			<ul>
 				{#each items as item}
@@ -70,3 +70,10 @@
 		</div>
 	{/each}
 </div>
+
+<style lang="scss">
+	$font-stack: Helvetica, sans-serif;
+	$primary-color: #333;
+    
+
+</style>

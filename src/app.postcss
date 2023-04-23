@@ -1,0 +1,14 @@
+/* Write your global styles here, in PostCSS syntax */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+	@layer utilities {
+		.custom-css {
+			flex: 0 1 auto;
+			transition: all 2s ease-in-out;
+		}
+		.custom-css:hover {
+			flex: 1 0 auto;
+		}
+	}

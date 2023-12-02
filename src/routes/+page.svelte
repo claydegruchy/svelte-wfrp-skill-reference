@@ -1,72 +1,96 @@
 <script lang="js">
 	import skills from './skills.json';
 
+	import EntryBox from './EntryBox.svelte';
+	import { slide } from 'svelte/transition';
+
 	// import {clickOutside} from './clickOutside.js';
 
 	let tags;
 	let mainAttrib;
+	let selectedItem;
+
+	let searchBox;
+	let searchValue;
 
 	$: if (tags) {
 		mainAttrib = skills.attributes.items.find((a) => a.tags == tags)?.title;
 	}
 
-	let search = null;
-	const selectTag = (item) => {
-		tags = item;
+	const setSelected = (item) => {
+		tags = item.tags;
+		selectedItem = item;
 	};
 
-	let isFocused = false;
+	const resetFilters = (e) => {
+		tags = null;
+		selectedItem = null;
+		searchValue = null;
+	};
 
-	$: tags && console.log(tags);
+	$: if (!searchValue && searchValue == '') searchValue = null;
 
-	const resetTags = (e) => (tags = null);
-	const resetSearch = (e) => (e.target.value.length > 0 ? null : (search = null));
-	const setSearch = (e) => {
-		const v = e.target && e.target.value;
-		if (v.length > 0) {
-			search = v;
-			return;
-		}
-		search = null;
+	let runSearch = () => true;
+	$: runSearch = (item) => {
+		let res =
+			(item?.title?.toLowerCase() + item?.description?.toLowerCase()).includes(
+				searchValue?.toLowerCase()
+			) || searchValue == null;
+		return res;
 	};
 </script>
 
-<div>
-	<input on:keyup={setSearch} on:blur={resetSearch} on:focus={resetSearch} type="text" />
-</div>
+<div class="h-screen border-8 p-1 overflow-hidden flex flex-col">
+	<div class="flex-1 p-1 m-1">
+		<input
+			bind:this={searchBox}
+			bind:value={searchValue}
+			placeholder="Search"
+			type="text"
+			class=" border-2 p-0.5 m-1 w-full"
+		/>
+	</div>
 
-<div>
-	{#if search != null}
-		Filtering for: {search}
-	{/if}
+	<div class="flex-1 m-1 p-1 2">
+		{#if tags != null || searchValue != null}
+			<div transition:slide>
+				Current filter:
 
-	Current filter:
-	{#if tags != null}
-		{mainAttrib}
-		<button on:click={resetTags}>Clear</button>
-	{/if}
+				<div class="flex space-x-2">
+					{#if tags != null}
+						<div class="p-1 border-2">{mainAttrib}</div>
+						<div class={'p-1 border-2 ' + selectedItem?.tags}>{selectedItem?.title}</div>
+					{/if}
+					{#if searchValue != null}
+						<div class="p-1 border-2">
+							Search [{searchValue}]
+						</div>
+					{/if}
+				</div>
 
+				<!-- slightly bigger text, padding -->
+				<button class="p-1 border-2 text-2xl " on:click={resetFilters}>Clear</button>
+			</div>
+		{/if}
+	</div>
 	<!-- <div use:clickOutside on:click_outside={e=>console.log("clicked outside!")}></div> -->
 
-	{#each Object.entries(skills) as [key, { title, items }]}
-		<div>
-			<h2>{title}</h2>
-			<ul>
-				{#each items as item}
-					{#if tags == null || tags == item.tags}
-						<li class={item.tags}>
-							<div on:keydown={null} on:click={() => selectTag(item.tags)}>
-								<div>
-									{item.title}
-								</div>
-								<div>
-									{item.description}
-								</div>
-							</div>
-						</li>
-					{/if}
-				{/each}
-			</ul>
-		</div>
-	{/each}
+	<div
+		class="flex-1 basis-5/6 grid grid-cols-4 border-2 p-1 m-1"
+		on:keypress={null}
+		on:click|self={resetFilters}
+	>
+		{#each Object.entries(skills) as [key, { title, items }]}
+			<div class="p-1 m-1 border-2 max-h-screen" on:keypress={null} on:click|self={resetFilters}>
+				<h2>{title} - ({items.length})</h2>
+				<div class="max-h-screen overflow-y-auto">
+					{#each items as item}
+						{#if (tags == null || tags == item.tags) && runSearch(item)}
+							<EntryBox class={tags} {item} {setSelected} itemSelected={selectedItem == item} />
+						{/if}
+					{/each}
+				</div>
+			</div>
+		{/each}
+	</div>
 </div>

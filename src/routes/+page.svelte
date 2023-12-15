@@ -40,7 +40,7 @@
 	};
 </script>
 
-<div class="h-screen border-8 p-1 overflow-hidden flex flex-col">
+<div class="h-screen border-8 p-1  flex flex-col">
 	<div class="flex-1 p-1 m-1">
 		<input
 			bind:this={searchBox}
@@ -75,15 +75,16 @@
 	</div>
 	<!-- <div use:clickOutside on:click_outside={e=>console.log("clicked outside!")}></div> -->
 
+	<!-- hide overflow in this grid -->
 	<div
-		class="flex-1 basis-5/6 grid grid-cols-4 border-2 p-1 m-1"
+		class="flex-1 basis-5/6 grid grid-cols-4 border-2 p-1 m-1 overflow-y-auto"
 		on:keypress={null}
 		on:click|self={resetFilters}
 	>
 		{#each Object.entries(skills) as [key, { title, items }]}
-			<div class="p-1 m-1 border-2 max-h-screen" on:keypress={null} on:click|self={resetFilters}>
+			<div class="p-1 m-1 border-2 " on:keypress={null} on:click|self={resetFilters}>
 				<h2>{title} - ({items.length})</h2>
-				<div class="max-h-screen overflow-y-auto">
+				<div class="object-contain">
 					{#each items as item}
 						{#if (tags == null || tags == item.tags) && runSearch(item)}
 							<EntryBox class={tags} {item} {setSelected} itemSelected={selectedItem == item} />
